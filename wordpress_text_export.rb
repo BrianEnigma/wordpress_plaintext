@@ -25,11 +25,18 @@ document.get_elements("/rss/channel/item/content:encoded").each { |element|
         # inline symbols (greater than, less than, ampersand) as
         # HTML entities.
         value = text.value.gsub(/<\/?[^>]*>/, "")
-        # Convert those entities back to plaintext
+        # Strip out some special WordPress shortcodes.  These are the
+        # ones I'm familiar with.  I'm not sure if there is a more
+        # exhaustive list out there.
+        value = value.gsub(/\[caption .*?\[\/caption\]/, "")
+        value = value.gsub(/\[gallery .*?\[\/gallery\]/, "")
+        # Convert those entities back to plaintext (nbsp isn't part of CGI unescapeHTML)
         value = CGI.unescapeHTML(value)
+        value = value.gsub(/\&nbsp;/, " ")
         out_file << value
         out_file << "\n"
     }
     out_file << "\n"
 }
 out_file.close()
+print("Finished\n")
